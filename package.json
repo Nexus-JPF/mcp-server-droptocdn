@@ -1,0 +1,52 @@
+{
+  "name": "@droptocdn/mcp-server",
+  "version": "0.1.0",
+  "description": "MCP server for Drop to CDN — upload files and get instant public CDN URLs from Claude, Cursor, and other MCP hosts",
+  "license": "MIT",
+  "homepage": "https://droptocdn.com/integrations/mcp",
+  "keywords": [
+    "mcp",
+    "modelcontextprotocol",
+    "droptocdn",
+    "cdn",
+    "file-upload"
+  ],
+  "author": {
+    "name": "Drop to CDN",
+    "email": "support@droptocdn.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nexus-JPF/mcp-server-droptocdn.git"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "mcp-server-droptocdn": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "npm run build && (tsc --watch --preserveWatchOutput & node --watch dist/index.js)",
+    "inspector": "npx @modelcontextprotocol/inspector node dist/index.js",
+    "prepublishOnly": "npm run build"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "^2.0.0",
+    "zod": "^4.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.0",
+    "typescript": "^5.7.2"
+  }
+}

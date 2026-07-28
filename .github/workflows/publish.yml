@@ -1,12 +1,12 @@
-# Publishes @droptocdn/mcp-server to npm with provenance (public repo required).
+# Publishes mcp-server-droptocdn to npm with provenance (public repo required).
 #
-# npm Trusted Publisher (recommended):
-#   npmjs.com → @droptocdn/mcp-server → Settings → Trusted Publishers
+# npm Trusted Publisher (optional):
+#   npmjs.com → mcp-server-droptocdn → Settings → Trusted Publishers
 #   Owner: Nexus-JPF, Repo: mcp-server-droptocdn, Workflow: publish.yml
 #
 # Or GitHub secret NPM_TOKEN (granular token, Read and write, Bypass 2FA).
 #
-# Release: git tag v0.1.0 && git push origin v0.1.0
+# Release: git tag v0.1.1 && git push origin v0.1.1
 
 name: Publish
 
@@ -17,7 +17,7 @@ on:
 
 jobs:
   publish:
-    name: Publish @droptocdn/mcp-server to npm
+    name: Publish mcp-server-droptocdn to npm
     runs-on: ubuntu-latest
 
     permissions:

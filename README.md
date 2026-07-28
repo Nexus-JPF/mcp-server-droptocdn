@@ -1,4 +1,4 @@
-# @droptocdn/mcp-server
+# mcp-server-droptocdn
 
 [MCP](https://modelcontextprotocol.io) server for [Drop to CDN](https://droptocdn.com) — upload files and get instant public CDN URLs from Claude Desktop, Cursor, and other MCP hosts.
 
@@ -11,7 +11,7 @@ Add to `.cursor/mcp.json`, `~/.cursor/mcp.json`, or Claude Desktop's `claude_des
   "mcpServers": {
     "droptocdn": {
       "command": "npx",
-      "args": ["-y", "@droptocdn/mcp-server"],
+      "args": ["-y", "mcp-server-droptocdn"],
       "env": {
         "DROPTOCDN_API_KEY": "dtc_YOUR_API_KEY"
       }

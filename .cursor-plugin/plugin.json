@@ -1,0 +1,14 @@
+{
+  "name": "droptocdn",
+  "version": "0.1.1",
+  "description": "Upload files to Drop to CDN and get instant public CDN URLs from Cursor or Claude Desktop.",
+  "author": {
+    "name": "Drop to CDN",
+    "email": "support@droptocdn.com"
+  },
+  "homepage": "https://droptocdn.com/integrations/mcp",
+  "repository": "https://github.com/Nexus-JPF/mcp-server-droptocdn",
+  "license": "MIT",
+  "keywords": ["mcp", "cdn", "file-upload", "droptocdn", "upload"],
+  "logo": "assets/droptocdn.svg"
+}

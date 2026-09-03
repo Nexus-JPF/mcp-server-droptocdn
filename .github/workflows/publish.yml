@@ -1,8 +1,11 @@
-# Publishes mcp-server-droptocdn to npm (with provenance) and the MCP Registry.
+# Publishes mcp-server-droptocdn to npm (OIDC trusted publishing) and the MCP Registry.
 #
-# npm auth: NPM_TOKEN secret (granular token, Packages Read+Write, Bypass 2FA enabled).
-#   Create at npmjs.com/settings/tokens → Granular Access Token
-#   Add to GitHub: Nexus-JPF/mcp-server-droptocdn → Settings → Secrets → NPM_TOKEN
+# npm: configure Trusted publishing on npmjs.com (no NPM_TOKEN needed for publish):
+#   Package → Settings → Trusted publishing → GitHub Actions
+#   Owner: Nexus-JPF, Repo: mcp-server-droptocdn, Workflow: publish.yml
+#   Allowed actions: npm publish
+#
+# Requires npm CLI 11.5.1+ (installed in the "Prepare npm publish" step).
 #
 # MCP Registry: GitHub OIDC auth — no extra secrets required.
 #
@@ -32,7 +35,6 @@ jobs:
         with:
           node-version: '22'
           cache: 'npm'
-          registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
         run: npm ci
@@ -40,15 +42,21 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Prepare npm publish (OIDC)
+        run: |
+          npm install -g npm@latest
+          npm --version
+          # Remove auth lines that block OIDC token exchange
+          NPMRC_PATH="${NPM_CONFIG_USERCONFIG:-$HOME/.npmrc}"
+          if [ -f "$NPMRC_PATH" ]; then
+            sed -i '/_authToken/d' "$NPMRC_PATH"
+          fi
+
       - name: Publish to npm
         run: |
-          if [ -z "$NODE_AUTH_TOKEN" ]; then
-            echo "NPM_TOKEN secret is missing. Add a granular token with Bypass 2FA enabled."
-            exit 1
-          fi
           for attempt in 1 2 3 4 5; do
             echo "Publish attempt ${attempt}/5..."
-            if npm publish --provenance --access public; then
+            if npm publish --access public; then
               exit 0
             fi
             if [ "$attempt" -lt 5 ]; then
@@ -58,8 +66,6 @@ jobs:
           done
           echo "Publish failed after 5 attempts."
           exit 1
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Sync server.json version from tag
         run: |

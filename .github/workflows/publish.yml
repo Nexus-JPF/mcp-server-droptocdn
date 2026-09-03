@@ -1,10 +1,11 @@
 # Publishes mcp-server-droptocdn to npm (with provenance) and the MCP Registry.
 #
-# npm Trusted Publisher (optional):
+# npm auth: Trusted Publisher (recommended — no NPM_TOKEN, no OTP).
 #   npmjs.com → mcp-server-droptocdn → Settings → Trusted Publishers
 #   Owner: Nexus-JPF, Repo: mcp-server-droptocdn, Workflow: publish.yml
 #
-# Or GitHub secret NPM_TOKEN (granular token, Read and write, Bypass 2FA).
+# Fallback: NPM_TOKEN secret (granular token, Packages Read+Write, Bypass 2FA enabled).
+#   Tokens without "Bypass 2FA" fail in CI with: EOTP requires a one-time password
 #
 # MCP Registry: GitHub OIDC auth — no extra secrets required.
 #
@@ -34,6 +35,7 @@ jobs:
         with:
           node-version: '22'
           cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
         run: npm ci
@@ -43,9 +45,6 @@ jobs:
 
       - name: Publish to npm
         run: |
-          if [ -n "$NPM_TOKEN" ]; then
-            npm config set //registry.npmjs.org/:_authToken "$NPM_TOKEN"
-          fi
           for attempt in 1 2 3 4 5; do
             echo "Publish attempt ${attempt}/5..."
             if npm publish --provenance --access public; then
@@ -59,7 +58,7 @@ jobs:
           echo "Publish failed after 5 attempts."
           exit 1
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Sync server.json version from tag
         run: |

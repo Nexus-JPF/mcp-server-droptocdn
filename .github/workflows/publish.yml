@@ -1,4 +1,4 @@
-# Publishes mcp-server-droptocdn to npm with provenance (public repo required).
+# Publishes mcp-server-droptocdn to npm (with provenance) and the MCP Registry.
 #
 # npm Trusted Publisher (optional):
 #   npmjs.com → mcp-server-droptocdn → Settings → Trusted Publishers
@@ -6,7 +6,9 @@
 #
 # Or GitHub secret NPM_TOKEN (granular token, Read and write, Bypass 2FA).
 #
-# Release: git tag v0.1.1 && git push origin v0.1.1
+# MCP Registry: GitHub OIDC auth — no extra secrets required.
+#
+# Release: git tag v0.1.2 && git push origin v0.1.2
 
 name: Publish
 
@@ -17,7 +19,7 @@ on:
 
 jobs:
   publish:
-    name: Publish mcp-server-droptocdn to npm
+    name: Publish mcp-server-droptocdn
     runs-on: ubuntu-latest
 
     permissions:
@@ -58,3 +60,21 @@ jobs:
           exit 1
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Sync server.json version from tag
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          jq --arg v "$VERSION" '
+            .version = $v |
+            .packages[0].version = $v
+          ' server.json > server.tmp && mv server.tmp server.json
+
+      - name: Install mcp-publisher
+        run: |
+          curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
+
+      - name: Authenticate to MCP Registry
+        run: ./mcp-publisher login github-oidc
+
+      - name: Publish to MCP Registry
+        run: ./mcp-publisher publish

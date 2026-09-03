@@ -1,10 +1,9 @@
 # Publishes mcp-server-droptocdn to npm (with provenance) and the MCP Registry.
 #
-# npm auth: Trusted Publisher only (OIDC — no NPM_TOKEN, no OTP).
-#   1. npmjs.com → mcp-server-droptocdn → Settings → Trusted Publishers
-#      Owner: Nexus-JPF, Repo: mcp-server-droptocdn, Workflow: publish.yml
-#   2. Delete NPM_TOKEN from GitHub repo secrets if present — it overrides OIDC
-#      and tokens without "Bypass 2FA" cause EOTP errors in CI.
+# npm auth: NPM_TOKEN secret (granular token, Packages Read+Write, Bypass 2FA enabled).
+#   Create at npmjs.com/settings/tokens → Granular Access Token
+#   Add to GitHub: Nexus-JPF/mcp-server-droptocdn → Settings → Secrets → NPM_TOKEN
+#
 # MCP Registry: GitHub OIDC auth — no extra secrets required.
 #
 # Release: git tag v0.1.2 && git push origin v0.1.2
@@ -43,6 +42,10 @@ jobs:
 
       - name: Publish to npm
         run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "NPM_TOKEN secret is missing. Add a granular token with Bypass 2FA enabled."
+            exit 1
+          fi
           for attempt in 1 2 3 4 5; do
             echo "Publish attempt ${attempt}/5..."
             if npm publish --provenance --access public; then
@@ -55,6 +58,8 @@ jobs:
           done
           echo "Publish failed after 5 attempts."
           exit 1
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Sync server.json version from tag
         run: |
